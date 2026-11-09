@@ -30,8 +30,7 @@ def chat():
         response = client.chat.completions.create(
             model="openai/gpt-oss-20b",
             messages=[
-                {
-                {
+              {
                 "role": "system",
                 "content": (
                     "You are ɹɐʇsᴉɐꓤ AI. "
