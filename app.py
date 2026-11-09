@@ -1,58 +1,65 @@
+
 from flask import Flask, request, jsonify
-from openai import OpenAI
+from groq import Groq
 import os
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "ɹɐʇsᴉɐꓤ AI V34 - AI SERVER ONLINE"
+    return "ɹɐʇsᴉɐꓤ AI GROQ SERVER ONLINE"
 
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        message = (request.get_json(silent=True) or {}).get(
-            "message", ""
-        ).strip()
+        data = request.get_json(silent=True) or {}
+        message = data.get("message", "").strip()
 
         if not message:
-            return jsonify({"reply": "Please type a message."}), 400
+            return jsonify({"reply": "Apna message likho."}), 400
 
-        if len(message) > 10000:
-            return jsonify({"reply": "Message is too long."}), 400
-
-        api_key = os.environ.get("OPENAI_API_KEY")
+        api_key = os.environ.get("GROQ_API_KEY")
 
         if not api_key:
             return jsonify({
-                "reply": "AI setup pending. Ask your administrator."
+                "reply": "GROQ_API_KEY setup pending hai."
             }), 503
 
-        client = OpenAI(api_key=api_key)
+        client = Groq(api_key=api_key)
 
-        response = client.responses.create(
-            model=os.environ.get("OPENAI_MODEL", "gpt-5.5"),
-            instructions=(
-                "You are ɹɐʇsᴉɐꓤ AI. "
-                "You are a helpful assistant. "
-                "Reply in Hindi or Hinglish when the user does. "
-                "Help with general knowledge, anime, Naruto, "
-                "Tokyo Revengers, gaming and technology. "
-                "Give accurate answers and admit uncertainty."
-            ),
-            input=message
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are ɹɐʇsᴉɐꓤ AI. "
+                        "Reply in Hindi or Hinglish. "
+                        "Help with general knowledge, anime, "
+                        "gaming and technology. "
+                        "Be accurate and admit uncertainty."
+                    )
+                },
+                {"role": "user", "content": message}
+            ],
+            temperature=0.7,
+            max_tokens=1024
         )
 
-        return jsonify({"reply": response.output_text})
+        reply = response.choices[0].message.content
+
+        return jsonify({"reply": reply})
 
     except Exception:
-        app.logger.exception("AI request failed")
+        app.logger.exception("Groq chat error")
         return jsonify({
-            "reply": "AI server error. Please try again."
+            "reply": "Groq server error. Render Logs check karo."
         }), 500
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-      
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 10000))
+        )
+    
