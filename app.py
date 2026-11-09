@@ -34,7 +34,10 @@ def chat():
                     "role": "system",
                     "content": (
                         "You are ɹɐʇsᴉɐꓤ AI. "
-                        "Reply in Hindi or Hinglish. "
+                        "Reply in the same language and script used by the user. "
+"Use Hinglish in Roman letters when the user writes Hinglish. "
+"Use English when the user writes English. "
+"Use Hindi when the user writes Hindi. "
                         "Help with general knowledge, anime, "
                         "gaming and technology. "
                         "Be accurate and admit uncertainty."
