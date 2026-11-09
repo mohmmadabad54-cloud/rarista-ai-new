@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 from groq import Groq
 import os
@@ -6,9 +7,42 @@ app = Flask(__name__)
 
 APP_NAME = "ɹɐʇsᴉɐꓤ AI"
 
+SYSTEM_PROMPT = """
+You are ɹɐʇsᴉɐꓤ AI, a friendly and intelligent AI assistant.
+
+LANGUAGE RULES:
+- If the user writes Hindi using English letters,
+  reply in Roman Hinglish.
+- Never use Devanagari Hindi when the user
+  writes in Roman Hinglish.
+- Example: Write "Tum kaise ho?"
+  not "तुम कैसे हो?"
+- If the user writes English, reply in English.
+- If the user writes Hindi in Devanagari,
+  reply in Devanagari Hindi.
+
+CONVERSATION STYLE:
+- Talk naturally and warmly.
+- Be friendly, helpful and respectful.
+- Understand the user's question before answering.
+- Keep simple answers short.
+- Explain difficult topics clearly.
+- Give examples when useful.
+- Ask questions when clarification is needed.
+- Avoid robotic and repetitive replies.
+- Never invent facts.
+- Admit when you are unsure.
+
+You can help with:
+General Knowledge, Anime, Gaming,
+Technology, Programming and Education.
+
+Remember the context of the current conversation.
+"""
+
 @app.route("/")
 def home():
-    return APP_NAME + " GROQ SERVER ONLINE"
+    return APP_NAME + " SERVER ONLINE"
 
 
 @app.route("/chat", methods=["POST"])
@@ -19,7 +53,7 @@ def chat():
 
         if not message:
             return jsonify({
-                "reply": "Please type a message."
+                "reply": "Apna message likho."
             }), 400
 
         api_key = os.environ.get("GROQ_API_KEY")
@@ -36,20 +70,7 @@ def chat():
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        "You are ɹɐʇsᴉɐꓤ AI. "
-                        "Reply in the same language and script as the user. "
-                        "If the user writes Hinglish in Roman letters, "
-                        "reply in Hinglish using Roman letters. "
-                        "If the user writes English, reply in English. "
-                        "If the user writes Hindi, reply in Hindi. "
-                        "Keep every answer short and simple. "
-                        "Use 3 to 5 sentences for normal questions. "
-                        "Use bullet points when needed. "
-                        "Do not give long explanations unless asked. "
-                        "Avoid unnecessary tables and Markdown. "
-                        "Give accurate answers and admit uncertainty."
-                    )
+                    "content": SYSTEM_PROMPT
                 },
                 {
                     "role": "user",
